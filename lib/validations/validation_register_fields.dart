@@ -1,5 +1,4 @@
 class Validators {
-
   static String? validateName(String? value) {
     if (value == null || value.trim().isEmpty) {
       return "Будь ласка, введіть ім'я";

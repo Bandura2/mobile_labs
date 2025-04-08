@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../widgets/custom_textfield.dart';
-import '../widgets/custom_button.dart';
-import '../user_data.dart';
-import '../validations/validation_register_fields.dart';
+import '/widgets/custom_textfield.dart';
+import '/widgets/custom_button.dart';
+import '/user_data.dart';
+import '/validations/validation_register_fields.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -17,15 +17,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-
-  void _registerUser() {
+  Future<void> _registerUser() async {
     if (_formKey.currentState!.validate()) {
+      final name = _nameController.text.trim();
+      final email = _emailController.text.trim();
+      final password = _passwordController.text.trim();
 
-      UserData.name = _nameController.text.trim();
-      UserData.email = _emailController.text.trim();
-      UserData.password = _passwordController.text.trim();
-      UserData.isLoggedIn = true;
-
+      await UserPreferences.saveUser(
+        name: name,
+        email: email,
+        password: password,
+        isLoggedIn: true,
+      );
       Navigator.pushNamed(context, '/profile');
     }
   }

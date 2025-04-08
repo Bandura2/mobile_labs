@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lab_1/widgets/custom_button.dart';
+import '/widgets/custom_button.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -14,13 +14,10 @@ class HomeScreen extends StatelessWidget {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // 🖼️ Background image
           Image.network(
             'https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1050&q=80',
             fit: BoxFit.cover,
           ),
-
-          // 🔳 Content on top of image
           Center(
             child: Container(
               padding: const EdgeInsets.all(20),
@@ -36,7 +33,6 @@ class HomeScreen extends StatelessWidget {
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 20),
-
                   CustomButton(
                     onPressed: () => Navigator.pushNamed(context, '/profile'),
                     text: 'Перейти до профілю',

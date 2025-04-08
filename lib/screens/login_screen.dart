@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../widgets/custom_textfield.dart';
-import '../widgets/custom_button.dart';
-import '../user_data.dart';
+import '/validations/validation_register_fields.dart';
+import '/widgets/custom_textfield.dart';
+import '/widgets/custom_button.dart';
+import '/user_data.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,17 +17,19 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   String? _errorMessage;
 
-  void _loginUser() {
+  Future<void> _loginUser() async {
     setState(() {
       _errorMessage = null;
     });
 
     if (_formKey.currentState!.validate()) {
-      if (_emailController.text.trim() == UserData.email &&
-          _passwordController.text.trim() == UserData.password) {
+      final savedEmail = await UserPreferences.getUserEmail();
+      final savedPassword = await UserPreferences.getUserPassword();
 
-        UserData.isLoggedIn = true;
-        Navigator.pushNamed(context, '/profile');
+      if (_emailController.text.trim() == savedEmail &&
+          _passwordController.text.trim() == savedPassword) {
+        await UserPreferences.setUserLoggedIn(true);
+        Navigator.pushReplacementNamed(context, '/profile');
       } else {
         setState(() {
           _errorMessage = "Неправильний email або пароль";
@@ -46,15 +49,13 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // 🖼️ Background image
           Image.network(
             'https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1050&q=80',
             fit: BoxFit.cover,
           ),
           Center(
-            // padding: const EdgeInsets.all(16.0),
             child: Container(
-              height: 250,
+              height: 300,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.6),
@@ -65,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    if (_errorMessage != null) // Відображаємо помилку, якщо є
+                    if (_errorMessage != null)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 10),
                         child: Text(
@@ -76,23 +77,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     CustomTextField(
                       label: 'Email',
                       controller: _emailController,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Введіть email';
-                        }
-                        return null;
-                      },
+                      validator: Validators.validateEmail,
                     ),
                     CustomTextField(
                       label: 'Пароль',
                       isPassword: true,
                       controller: _passwordController,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Введіть пароль';
-                        }
-                        return null;
-                      },
+                      validator: Validators.validatePassword,
                     ),
                     const SizedBox(height: 20),
                     CustomButton(text: 'Увійти', onPressed: _loginUser),
