@@ -29,7 +29,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         password: password,
         isLoggedIn: true,
       );
-      Navigator.pushNamed(context, '/profile');
+      if (mounted) {
+        Navigator.pushNamed(context, '/profile');
+      }
     }
   }
 
