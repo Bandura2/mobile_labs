@@ -29,7 +29,9 @@ class _LoginScreenState extends State<LoginScreen> {
       if (_emailController.text.trim() == savedEmail &&
           _passwordController.text.trim() == savedPassword) {
         await UserPreferences.setUserLoggedIn(true);
-        Navigator.pushReplacementNamed(context, '/profile');
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/profile');
+        }
       } else {
         setState(() {
           _errorMessage = "Неправильний email або пароль";
@@ -58,7 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
               height: 300,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.6),
+                color: Colors.white.withAlpha(128),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Form(
