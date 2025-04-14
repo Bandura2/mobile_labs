@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import '/routes.dart';
-import '/user_data.dart';
+import '/repositories/shared_prefs_user_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final isLoggedIn = await UserPreferences.isUserLoggedIn();
+
+  final userRepository = SharedPrefsUserRepository();
+  final isLoggedIn = await userRepository.isUserLoggedIn();
+
   runApp(MyApp(isLoggedIn: isLoggedIn));
 }
 

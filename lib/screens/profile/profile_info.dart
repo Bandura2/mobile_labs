@@ -26,6 +26,11 @@ class ProfileInfo extends StatelessWidget {
         const SizedBox(height: 8),
         Text(email, style: const TextStyle(fontSize: 16)),
         const SizedBox(height: 20),
+        CustomButton(
+          onPressed: () => Navigator.pushNamed(context, '/update'),
+          text: 'Редагувати профіль',
+        ),
+        const SizedBox(height: 20),
         CustomButton(onPressed: onLogout, text: 'Вийти з акаунту'),
       ],
     );

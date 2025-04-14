@@ -34,7 +34,7 @@ class ProfileView extends StatelessWidget {
           child: isLoading
               ? const CircularProgressIndicator()
               : Container(
-                  height: 250,
+                  height: 400,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: Colors.white.withAlpha(180),
