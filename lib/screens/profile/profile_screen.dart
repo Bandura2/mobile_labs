@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import '/user_data.dart';
-import 'profile_view.dart';
+import 'package:lab_1/models/user.dart';
+import 'package:lab_1/repositories/shared_prefs_user_repository.dart';
+import 'package:lab_1/screens/profile/profile_view.dart';
+import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -10,49 +12,51 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  late SharedPrefsUserRepository _userRepository;
   bool _isLoading = true;
-  bool _isLoggedIn = false;
-  String? _name;
-  String? _email;
+  User? _user;
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _userRepository = context.read<SharedPrefsUserRepository>();
+      _loadUserData();
+    });
   }
 
   Future<void> _loadUserData() async {
     setState(() => _isLoading = true);
 
-    final isLoggedIn = await UserPreferences.isUserLoggedIn();
+    final isLoggedIn = await _userRepository.isUserLoggedIn();
     if (isLoggedIn) {
-      final name = await UserPreferences.getUserName();
-      final email = await UserPreferences.getUserEmail();
-
+      final user = await _userRepository.getUser();
       setState(() {
-        _isLoggedIn = true;
-        _name = name;
-        _email = email;
+        _user = user;
         _isLoading = false;
       });
     } else {
       setState(() {
-        _isLoggedIn = false;
+        _user = null;
         _isLoading = false;
       });
     }
   }
 
   Future<void> _logout() async {
+    await _userRepository.logout();
+
     setState(() {
-      _isLoggedIn = false;
-      _name = null;
-      _email = null;
+      _user = null;
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Ви вийшли з системи')),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ви вийшли з системи')),
+      );
+      Navigator.pushReplacementNamed(context, '/');
+    }
   }
 
   @override
@@ -65,9 +69,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       body: ProfileView(
         isLoading: _isLoading,
-        isLoggedIn: _isLoggedIn,
-        name: _name,
-        email: _email,
+        isLoggedIn: _user != null,
+        name: _user?.name,
+        email: _user?.email,
         onLogout: _logout,
         onReload: _loadUserData,
       ),

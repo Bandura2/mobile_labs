@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '/validations/validation_register_fields.dart';
-import '/widgets/custom_textfield.dart';
-import '/widgets/custom_button.dart';
-import '/user_data.dart';
+import 'package:lab_1/widgets/custom_button.dart';
+import 'package:lab_1/validations/validation_register_fields.dart';
+import 'package:lab_1/widgets/custom_textfield.dart';
+import 'package:lab_1/repositories/shared_prefs_user_repository.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,8 +14,9 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
   String? _errorMessage;
 
   Future<void> _loginUser() async {
@@ -23,12 +25,13 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     if (_formKey.currentState!.validate()) {
-      final savedEmail = await UserPreferences.getUserEmail();
-      final savedPassword = await UserPreferences.getUserPassword();
+      final userRepository = context.read<SharedPrefsUserRepository>();
+      final savedUser = await userRepository.getUser();
 
-      if (_emailController.text.trim() == savedEmail &&
-          _passwordController.text.trim() == savedPassword) {
-        await UserPreferences.setUserLoggedIn(true);
+      if (savedUser != null &&
+          _emailController.text.trim() == savedUser.email &&
+          _passwordController.text.trim() == savedUser.password) {
+        await userRepository.setUserLoggedIn(true);
         if (mounted) {
           Navigator.pushReplacementNamed(context, '/profile');
         }

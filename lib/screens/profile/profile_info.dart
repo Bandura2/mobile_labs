@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import '/widgets/custom_button.dart';
+import 'package:lab_1/widgets/custom_button.dart';
+import 'package:lab_1/mqtt_sensors/data_from_sensors.dart';
 
-class ProfileInfo extends StatelessWidget {
+class ProfileInfo extends StatefulWidget {
   final String name;
   final String email;
   final VoidCallback onLogout;
@@ -14,6 +16,34 @@ class ProfileInfo extends StatelessWidget {
   });
 
   @override
+  State<ProfileInfo> createState() => _ProfileInfoState();
+}
+
+class _ProfileInfoState extends State<ProfileInfo> {
+  late final RandomGenerator sensor;
+  int _sensorValue = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    sensor = RandomGenerator();
+    sensor.start();
+    _updateSensorValue();
+  }
+
+  void _updateSensorValue() {
+    setState(() {
+      _sensorValue = sensor.value;
+    });
+
+    Timer.periodic(const Duration(seconds: 5), (_) {
+      setState(() {
+        _sensorValue = sensor.value;
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
@@ -22,11 +52,25 @@ class ProfileInfo extends StatelessWidget {
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 20),
-        Text('Привіт, $name!', style: const TextStyle(fontSize: 20)),
+        Text('Привіт, ${widget.name}!', style: const TextStyle(fontSize: 20)),
         const SizedBox(height: 8),
-        Text(email, style: const TextStyle(fontSize: 16)),
+        Text(widget.email, style: const TextStyle(fontSize: 16)),
         const SizedBox(height: 20),
-        CustomButton(onPressed: onLogout, text: 'Вийти з акаунту'),
+        Text(
+          'Значення давача: $_sensorValue',
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        const SizedBox(height: 20),
+        CustomButton(
+          onPressed: () => Navigator.pushNamed(context, '/update'),
+          text: 'Редагувати профіль',
+        ),
+        const SizedBox(height: 20),
+        CustomButton(onPressed: widget.onLogout, text: 'Вийти з акаунту'),
       ],
     );
   }

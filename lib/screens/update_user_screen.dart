@@ -1,39 +1,62 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:lab_1/repositories/shared_prefs_user_repository.dart';
 import 'package:lab_1/widgets/custom_textfield.dart';
 import 'package:lab_1/widgets/custom_button.dart';
 import 'package:lab_1/validations/validation_register_fields.dart';
 import 'package:lab_1/models/user.dart';
-import 'package:lab_1/repositories/shared_prefs_user_repository.dart';
+import 'package:provider/provider.dart';
 
-class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+class UpdateUserScreen extends StatefulWidget {
+  const UpdateUserScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  State<UpdateUserScreen> createState() => _UpdateUserScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _UpdateUserScreenState extends State<UpdateUserScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  late TextEditingController _nameController;
+  late TextEditingController _emailController;
+  late TextEditingController _passwordController;
 
-  Future<void> _registerUser() async {
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final userRepository = context.read<SharedPrefsUserRepository>();
+
+    final currentUser = await userRepository.getUser();
+
+    if (currentUser != null) {
+      setState(() {
+        _nameController = TextEditingController(text: currentUser.name);
+        _emailController = TextEditingController(text: currentUser.email);
+        _passwordController = TextEditingController(text: currentUser.password);
+      });
+    }
+  }
+
+  Future<void> _updateUser() async {
     if (_formKey.currentState!.validate()) {
-      final userRepository = context.read<SharedPrefsUserRepository>();
+      final name = _nameController.text.trim();
+      final email = _emailController.text.trim();
+      final password = _passwordController.text.trim();
 
-      final user = User(
-        name: _nameController.text.trim(),
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+      final updatedUser = User(
+        name: name,
+        email: email,
+        password: password,
+        isLoggedIn: true,
       );
 
-      await userRepository.saveUser(user);
-      await userRepository.setUserLoggedIn(true);
+      final userRepository = context.read<SharedPrefsUserRepository>();
+      await userRepository.updateUser(updatedUser);
 
       if (mounted) {
-        Navigator.pushNamed(context, '/profile');
+        Navigator.pushReplacementNamed(context, '/profile');
       }
     }
   }
@@ -42,9 +65,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Реєстрація'),
-        foregroundColor: Colors.white,
+        title: const Text('Редагування профілю'),
         backgroundColor: Colors.black87,
+        foregroundColor: Colors.white,
       ),
       body: Stack(
         fit: StackFit.expand,
@@ -63,7 +86,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Form(
                 key: _formKey,
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     CustomTextField(
                       label: "Ім'я",
@@ -83,8 +106,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 20),
                     CustomButton(
-                      text: 'Зареєструватися',
-                      onPressed: _registerUser,
+                      text: 'Оновити профіль',
+                      onPressed: _updateUser,
                     ),
                   ],
                 ),
