@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import '/repositories/shared_prefs_user_repository.dart';
-import '/widgets/custom_textfield.dart';
-import '/widgets/custom_button.dart';
-import '/validations/validation_register_fields.dart';
-import '/models/user.dart';
+import 'package:lab_1/repositories/shared_prefs_user_repository.dart';
+import 'package:lab_1/widgets/custom_textfield.dart';
+import 'package:lab_1/widgets/custom_button.dart';
+import 'package:lab_1/validations/validation_register_fields.dart';
+import 'package:lab_1/models/user.dart';
+import 'package:provider/provider.dart';
 
 class UpdateUserScreen extends StatefulWidget {
   const UpdateUserScreen({super.key});
@@ -18,8 +19,6 @@ class _UpdateUserScreenState extends State<UpdateUserScreen> {
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
 
-  final _userRepository = SharedPrefsUserRepository();
-
   @override
   void initState() {
     super.initState();
@@ -27,7 +26,9 @@ class _UpdateUserScreenState extends State<UpdateUserScreen> {
   }
 
   Future<void> _loadUserData() async {
-    final currentUser = await _userRepository.getUser();
+    final userRepository = context.read<SharedPrefsUserRepository>();
+
+    final currentUser = await userRepository.getUser();
 
     if (currentUser != null) {
       setState(() {
@@ -51,7 +52,8 @@ class _UpdateUserScreenState extends State<UpdateUserScreen> {
         isLoggedIn: true,
       );
 
-      await _userRepository.updateUser(updatedUser);
+      final userRepository = context.read<SharedPrefsUserRepository>();
+      await userRepository.updateUser(updatedUser);
 
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/profile');

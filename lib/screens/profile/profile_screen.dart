@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '/models/user.dart';
-import '/repositories/shared_prefs_user_repository.dart';
-import 'profile_view.dart';
+import 'package:lab_1/models/user.dart';
+import 'package:lab_1/repositories/shared_prefs_user_repository.dart';
+import 'package:lab_1/screens/profile/profile_view.dart';
+import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -11,15 +12,18 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final _userRepository = SharedPrefsUserRepository();
-
+  late SharedPrefsUserRepository _userRepository;
   bool _isLoading = true;
   User? _user;
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _userRepository = context.read<SharedPrefsUserRepository>();
+      _loadUserData();
+    });
   }
 
   Future<void> _loadUserData() async {

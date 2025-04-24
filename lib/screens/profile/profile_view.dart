@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'auth_buttons.dart';
-import 'profile_info.dart';
-import '/widgets/custom_button.dart';
+import 'package:lab_1/screens/profile//auth_buttons.dart';
+import 'package:lab_1/screens/profile/profile_info.dart';
+import 'package:lab_1/widgets/custom_button.dart';
 
 class ProfileView extends StatelessWidget {
   final bool isLoading;
@@ -35,6 +35,7 @@ class ProfileView extends StatelessWidget {
               ? const CircularProgressIndicator()
               : Container(
                   height: 400,
+                  width: 350,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: Colors.white.withAlpha(180),
@@ -48,7 +49,7 @@ class ProfileView extends StatelessWidget {
                             name: name!, email: email!, onLogout: onLogout)
                       else
                         AuthButtons(onReload: onReload),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 20),
                       CustomButton(
                         onPressed: () => Navigator.pushNamed(context, '/'),
                         text: 'На головну',

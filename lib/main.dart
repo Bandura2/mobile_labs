@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '/routes.dart';
-import '/repositories/shared_prefs_user_repository.dart';
+import 'package:lab_1/repositories/shared_prefs_user_repository.dart';
+import 'package:lab_1/routes.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -8,7 +9,14 @@ void main() async {
   final userRepository = SharedPrefsUserRepository();
   final isLoggedIn = await userRepository.isUserLoggedIn();
 
-  runApp(MyApp(isLoggedIn: isLoggedIn));
+  runApp(
+    MultiProvider(
+      providers: [
+        Provider<SharedPrefsUserRepository>.value(value: userRepository),
+      ],
+      child: MyApp(isLoggedIn: isLoggedIn),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

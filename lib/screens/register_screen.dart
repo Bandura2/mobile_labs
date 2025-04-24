@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import '/widgets/custom_textfield.dart';
-import '/widgets/custom_button.dart';
-import '/validations/validation_register_fields.dart';
-import '/models/user.dart';
-import '/repositories/shared_prefs_user_repository.dart';
+import 'package:provider/provider.dart';
+import 'package:lab_1/widgets/custom_textfield.dart';
+import 'package:lab_1/widgets/custom_button.dart';
+import 'package:lab_1/validations/validation_register_fields.dart';
+import 'package:lab_1/models/user.dart';
+import 'package:lab_1/repositories/shared_prefs_user_repository.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -18,18 +19,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  final _userRepository = SharedPrefsUserRepository();
-
   Future<void> _registerUser() async {
     if (_formKey.currentState!.validate()) {
+      final userRepository = context.read<SharedPrefsUserRepository>();
+
       final user = User(
         name: _nameController.text.trim(),
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
 
-      await _userRepository.saveUser(user);
-      await _userRepository.setUserLoggedIn(true);
+      await userRepository.saveUser(user);
+      await userRepository.setUserLoggedIn(true);
 
       if (mounted) {
         Navigator.pushNamed(context, '/profile');

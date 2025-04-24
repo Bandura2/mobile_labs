@@ -1,6 +1,6 @@
+import 'package:lab_1/repositories/user_repositories.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'user_repositories.dart';
-import '/models/user.dart';
+import 'package:lab_1/models/user.dart';
 
 class SharedPrefsUserRepository implements AbstractUserRepository {
   @override
