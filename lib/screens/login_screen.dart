@@ -54,8 +54,8 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Image.network(
-            'https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1050&q=80',
+          Image.asset(
+            'assets/images/background.jpg',
             fit: BoxFit.cover,
           ),
           Center(
