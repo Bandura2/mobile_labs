@@ -26,15 +26,15 @@ class ProfileView extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: [
-        Image.network(
-          'https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1050&q=80',
+        Image.asset(
+          'assets/images/background.jpg',
           fit: BoxFit.cover,
         ),
         Center(
           child: isLoading
               ? const CircularProgressIndicator()
               : Container(
-                  height: 400,
+                  height: 500,
                   width: 350,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(

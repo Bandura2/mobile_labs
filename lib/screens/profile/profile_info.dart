@@ -1,7 +1,9 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lab_1/widgets/custom_button.dart';
 import 'package:lab_1/mqtt_sensors/data_from_sensors.dart';
+import 'package:mqtt_client/mqtt_server_client.dart' as mqtt;
+
+final client = mqtt.MqttServerClient('broker.hivemq.com', 'flutter_client');
 
 class ProfileInfo extends StatefulWidget {
   final String name;
@@ -20,27 +22,24 @@ class ProfileInfo extends StatefulWidget {
 }
 
 class _ProfileInfoState extends State<ProfileInfo> {
-  late final RandomGenerator sensor;
   int _sensorValue = 0;
+  late MqttReader mqttReader;
 
   @override
   void initState() {
     super.initState();
-    sensor = RandomGenerator();
-    sensor.start();
-    _updateSensorValue();
-  }
 
-  void _updateSensorValue() {
-    setState(() {
-      _sensorValue = sensor.value;
-    });
+    mqttReader = MqttReader(client);
 
-    Timer.periodic(const Duration(seconds: 5), (_) {
-      setState(() {
-        _sensorValue = sensor.value;
-      });
-    });
+    mqttReader.onDistanceReceived = (int distance) {
+      if (mounted) {
+        setState(() {
+          _sensorValue = distance;
+        });
+      }
+    };
+
+    mqttReader.start();
   }
 
   @override
@@ -57,7 +56,7 @@ class _ProfileInfoState extends State<ProfileInfo> {
         Text(widget.email, style: const TextStyle(fontSize: 16)),
         const SizedBox(height: 20),
         Text(
-          'Значення давача: $_sensorValue',
+          'Значення давача: $_sensorValue см',
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
