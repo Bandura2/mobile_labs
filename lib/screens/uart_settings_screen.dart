@@ -47,8 +47,6 @@ class _UARTSettingsScreenState extends State<UARTSettingsScreen> {
         passwordController.text = scannedData['password']?.toString() ?? '';
       });
       _showResponseSnackBar('Креденціали отримано з QR-коду');
-      print(
-          'QR Data (username): ${usernameController.text}, (password): ${passwordController.text}');
     } else {
       _showResponseSnackBar(
           'Сканування QR-коду скасовано або дані не отримано/некоректний формат');
