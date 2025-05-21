@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lab_1/widgets/custom_button.dart';
-import 'package:lab_1/mqtt_sensors/data_from_sensors.dart';
+import 'package:lab_1/receivers_from_sensor/data_from_sensors.dart';
 import 'package:mqtt_client/mqtt_server_client.dart' as mqtt;
 
 final client = mqtt.MqttServerClient('broker.hivemq.com', 'flutter_client');
@@ -62,6 +62,11 @@ class _ProfileInfoState extends State<ProfileInfo> {
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
+        ),
+        const SizedBox(height: 20),
+        CustomButton(
+          onPressed: () => Navigator.pushNamed(context, '/uart_settings'),
+          text: 'Налаштування UART-ту',
         ),
         const SizedBox(height: 20),
         CustomButton(
