@@ -13,7 +13,6 @@ class UartCommunicationController {
     List<UsbDevice> devices = await UsbSerial.listDevices();
 
     if (devices.isEmpty) {
-      print('USB-пристрій не знайдено');
       return false;
     }
 
@@ -22,7 +21,6 @@ class UartCommunicationController {
     bool openResult = await _port!.open();
 
     if (!openResult) {
-      print('Не вдалося відкрити порт');
       return false;
     }
 
@@ -35,7 +33,6 @@ class UartCommunicationController {
       UsbPort.PARITY_NONE,
     );
 
-    print('Підключено до USB');
     startListening();
 
     return true;
@@ -47,21 +44,17 @@ class UartCommunicationController {
     _subscription = _port!.inputStream?.listen((data) {
       try {
         final response = utf8.decode(data);
-        print('Відповідь з МК: $response');
 
         _responseCompleter?.complete(response);
         _responseCompleter = null;
       } catch (e) {
-        print('Помилка при обробці відповіді: $e');
         _responseCompleter?.completeError('Failed to decode response: $e');
         _responseCompleter = null;
       }
     }, onError: (error) {
-      print('Помилка потоку USB: $error');
       _responseCompleter?.completeError('USB stream error: $error');
       _responseCompleter = null;
     }, onDone: () {
-      print('USB потік закрито');
       _responseCompleter?.completeError('USB stream closed');
       _responseCompleter = null;
     });
@@ -69,10 +62,8 @@ class UartCommunicationController {
 
   Future<String?> sendMessageAndWaitResponse(String message) async {
     if (_port == null) {
-      print('Порт не відкритий, спроба ініціалізації...');
       bool success = await initialize();
       if (!success) {
-        print('Не вдалося ініціалізувати порт для відправки повідомлення.');
         return null;
       }
     }
@@ -82,20 +73,15 @@ class UartCommunicationController {
     try {
       Uint8List dataToSend = Uint8List.fromList(utf8.encode(message));
       await _port!.write(dataToSend);
-      print(
-          'Дані надіслано через USB: ${message.replaceAll('\x00', '\\0')} (Довжина: ${dataToSend.length} байт)');
-
       final response = await _responseCompleter!.future.timeout(
         const Duration(seconds: 5),
         onTimeout: () {
-          print('Таймаут очікування відповіді.');
           _responseCompleter = null;
           return 'Timeout waiting for response';
         },
       );
       return response;
     } catch (e) {
-      print('Помилка при відправці/очікуванні відповіді: $e');
       _responseCompleter = null;
       return null;
     }
