@@ -1,4 +1,4 @@
-import '/models/user.dart';
+import 'package:lab_1/models/user.dart';
 
 abstract class AbstractUserRepository {
   Future<void> saveUser(User user);

@@ -23,57 +23,52 @@ void main() async {
   );
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   final bool isLoggedIn;
+  static final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
+      GlobalKey<ScaffoldMessengerState>();
 
   const MyApp({super.key, required this.isLoggedIn});
 
   @override
-  State<MyApp> createState() => _MyAppState();
-}
+  Widget build(BuildContext context) {
+    return Consumer<NetworkService>(
+      builder: (context, networkService, child) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _handleNetworkStatusChange(networkService);
+        });
 
-class _MyAppState extends State<MyApp> {
-  final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
-  GlobalKey<ScaffoldMessengerState>();
-  bool? _wasConnected;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    final networkService = Provider.of<NetworkService>(context);
-
-    networkService.addListener(() {
-      final isConnected = networkService.isConnected;
-
-      if (_wasConnected != null && _wasConnected != isConnected) {
-        final message =
-        isConnected ? 'Wi-Fi connected' : 'Wi-Fi disconnected';
-
-        _scaffoldMessengerKey.currentState?.showSnackBar(
-          SnackBar(
-            content: Text(message),
-            duration: const Duration(seconds: 2),
-            backgroundColor: isConnected ? Colors.green : Colors.red,
+        return MaterialApp(
+          scaffoldMessengerKey: _scaffoldMessengerKey,
+          title: 'Flutter App',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            useMaterial3: true,
           ),
+          initialRoute: isLoggedIn ? '/profile' : '/',
+          routes: appRoutes,
         );
-      }
-
-      _wasConnected = isConnected;
-    });
+      },
+    );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      scaffoldMessengerKey: _scaffoldMessengerKey,
-      title: 'Flutter App',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      initialRoute: widget.isLoggedIn ? '/profile' : '/',
-      routes: appRoutes,
-    );
+  static bool? _wasConnected;
+
+  static void _handleNetworkStatusChange(NetworkService networkService) {
+    final isConnected = networkService.isConnected;
+
+    if (_wasConnected != null && _wasConnected != isConnected) {
+      final message = isConnected ? 'Wi-Fi connected' : 'Wi-Fi disconnected';
+
+      _scaffoldMessengerKey.currentState?.showSnackBar(
+        SnackBar(
+          content: Text(message),
+          duration: const Duration(seconds: 2),
+          backgroundColor: isConnected ? Colors.green : Colors.red,
+        ),
+      );
+    }
+
+    _wasConnected = isConnected;
   }
 }

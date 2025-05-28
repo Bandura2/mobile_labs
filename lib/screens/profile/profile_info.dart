@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lab_1/widgets/custom_button.dart';
-import 'package:lab_1/receivers_from_sensor/data_from_sensors.dart';
-import 'package:mqtt_client/mqtt_server_client.dart' as mqtt;
+import 'package:lab_1/cubit/profile_cubit.dart';
 
-final client = mqtt.MqttServerClient('broker.hivemq.com', 'flutter_client');
-
-class ProfileInfo extends StatefulWidget {
+class ProfileInfo extends StatelessWidget {
   final String name;
   final String email;
   final VoidCallback onLogout;
@@ -18,29 +16,29 @@ class ProfileInfo extends StatefulWidget {
   });
 
   @override
-  State<ProfileInfo> createState() => _ProfileInfoState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => ProfileInfoCubit(),
+      child: ProfileInfoView(
+        name: name,
+        email: email,
+        onLogout: onLogout,
+      ),
+    );
+  }
 }
 
-class _ProfileInfoState extends State<ProfileInfo> {
-  int _sensorValue = 0;
-  late MqttReader mqttReader;
+class ProfileInfoView extends StatelessWidget {
+  final String name;
+  final String email;
+  final VoidCallback onLogout;
 
-  @override
-  void initState() {
-    super.initState();
-
-    mqttReader = MqttReader(client);
-
-    mqttReader.onDistanceReceived = (int distance) {
-      if (mounted) {
-        setState(() {
-          _sensorValue = distance;
-        });
-      }
-    };
-
-    mqttReader.start();
-  }
+  const ProfileInfoView({
+    super.key,
+    required this.name,
+    required this.email,
+    required this.onLogout,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -51,17 +49,21 @@ class _ProfileInfoState extends State<ProfileInfo> {
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 20),
-        Text('Привіт, ${widget.name}!', style: const TextStyle(fontSize: 20)),
+        Text('Привіт, $name!', style: const TextStyle(fontSize: 20)),
         const SizedBox(height: 8),
-        Text(widget.email, style: const TextStyle(fontSize: 16)),
+        Text(email, style: const TextStyle(fontSize: 16)),
         const SizedBox(height: 20),
-        Text(
-          'Значення давача: $_sensorValue см',
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
+        BlocBuilder<ProfileInfoCubit, ProfileInfoState>(
+          builder: (context, state) {
+            return Text(
+              'Значення давача: ${state.sensorValue} см',
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            );
+          },
         ),
         const SizedBox(height: 20),
         CustomButton(
@@ -74,7 +76,7 @@ class _ProfileInfoState extends State<ProfileInfo> {
           text: 'Редагувати профіль',
         ),
         const SizedBox(height: 20),
-        CustomButton(onPressed: widget.onLogout, text: 'Вийти з акаунту'),
+        CustomButton(onPressed: onLogout, text: 'Вийти з акаунту'),
       ],
     );
   }

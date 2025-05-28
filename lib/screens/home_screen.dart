@@ -22,7 +22,9 @@ class HomeScreen extends StatelessWidget {
               Navigator.of(ctx).pop();
               if (kIsWeb) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Вихід із додатку не підтримується у веб-версії")),
+                  const SnackBar(
+                      content: Text(
+                          "Вихід із додатку не підтримується у веб-версії")),
                 );
               } else {
                 SystemNavigator.pop();

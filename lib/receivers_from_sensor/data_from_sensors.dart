@@ -1,10 +1,10 @@
 import 'dart:convert';
-import 'package:mqtt_client/mqtt_client.dart' as mqtt;
-import 'package:mqtt_client/mqtt_server_client.dart' as mqtt;
+import 'package:mqtt_client/mqtt_client.dart' as mqtt_client;
+import 'package:mqtt_client/mqtt_server_client.dart' as mqtt_server_client;
 
 
 class MqttReader {
-  final mqtt.MqttServerClient client;
+  final mqtt_server_client.MqttServerClient client;
   Function(int distance)? onDistanceReceived;
 
   MqttReader(this.client) {
@@ -15,24 +15,25 @@ class MqttReader {
 
   Future<void> start() async {
     try {
-      final connMessage = mqtt.MqttConnectMessage()
+      final connMessage = mqtt_client.MqttConnectMessage()
           .withClientIdentifier(client.clientIdentifier)
           .startClean();
       client.connectionMessage = connMessage;
 
       final result = await client.connect();
-      if (result?.state != mqtt.MqttConnectionState.connected) {
+      if (result?.state != mqtt_client.MqttConnectionState.connected) {
         client.disconnect();
         return;
       }
 
-      client.subscribe('my/distance/sensor', mqtt.MqttQos.atMostOnce);
+      client.subscribe('my/distance/sensor', mqtt_client.MqttQos.atMostOnce);
 
       client.updates?.listen(
-        (List<mqtt.MqttReceivedMessage<mqtt.MqttMessage>>? messages) {
-          final mqtt.MqttPublishMessage message =
-              messages![0].payload as mqtt.MqttPublishMessage;
-          final payload = mqtt.MqttPublishPayload.bytesToStringAsString(
+            (List<mqtt_client.MqttReceivedMessage<
+            mqtt_client.MqttMessage>>? messages) {
+          final mqtt_client.MqttPublishMessage message =
+          messages![0].payload as mqtt_client.MqttPublishMessage;
+          final payload = mqtt_client.MqttPublishPayload.bytesToStringAsString(
               message.payload.message);
 
           try {

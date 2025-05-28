@@ -6,119 +6,107 @@ import 'package:lab_1/validations/validation_register_fields.dart';
 import 'package:lab_1/models/user.dart';
 import 'package:provider/provider.dart';
 
-class UpdateUserScreen extends StatefulWidget {
+class UpdateUserScreen extends StatelessWidget {
   const UpdateUserScreen({super.key});
 
   @override
-  State<UpdateUserScreen> createState() => _UpdateUserScreenState();
-}
+  Widget build(BuildContext context) {
+    final formKey = GlobalKey<FormState>();
+    final nameController = TextEditingController();
+    final emailController = TextEditingController();
+    final passwordController = TextEditingController();
 
-class _UpdateUserScreenState extends State<UpdateUserScreen> {
-  final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
-  late TextEditingController _emailController;
-  late TextEditingController _passwordController;
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController();
-    _emailController = TextEditingController();
-    _passwordController = TextEditingController();
-    _loadUserData();
-  }
-
-  Future<void> _loadUserData() async {
     final userRepository = context.read<SharedPrefsUserRepository>();
 
-    final currentUser = await userRepository.getUser();
+    return FutureBuilder<User?>(
+      future: userRepository.getUser(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-    if (currentUser != null) {
-      setState(() {
-        _nameController = TextEditingController(text: currentUser.name);
-        _emailController = TextEditingController(text: currentUser.email);
-        _passwordController = TextEditingController(text: currentUser.password);
-      });
-    }
-  }
+        final user = snapshot.data;
 
-  Future<void> _updateUser() async {
-    if (_formKey.currentState!.validate()) {
-      final name = _nameController.text.trim();
-      final email = _emailController.text.trim();
-      final password = _passwordController.text.trim();
+        if (user != null) {
+          nameController.text = user.name;
+          emailController.text = user.email;
+          passwordController.text = user.password;
+        }
 
-      final updatedUser = User(
-        name: name,
-        email: email,
-        password: password,
-        isLoggedIn: true,
-      );
+        Future<void> updateUser() async {
+          if (formKey.currentState!.validate()) {
+            final updatedUser = User(
+              name: nameController.text.trim(),
+              email: emailController.text.trim(),
+              password: passwordController.text.trim(),
+              isLoggedIn: true,
+            );
 
-      final userRepository = context.read<SharedPrefsUserRepository>();
-      await userRepository.updateUser(updatedUser);
+            final navigator = Navigator.of(context);
 
-      if (mounted) {
-        Navigator.pushReplacementNamed(context, '/profile');
-      }
-    }
-  }
+            await userRepository.updateUser(updatedUser);
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Редагування профілю'),
-        backgroundColor: Colors.black87,
-        foregroundColor: Colors.white,
-      ),
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.asset(
-            'assets/images/background.jpg',
-            fit: BoxFit.cover,
+            navigator.pushReplacementNamed('/profile');
+          }
+        }
+
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Редагування профілю'),
+            backgroundColor: Colors.black87,
+            foregroundColor: Colors.white,
           ),
-          Center(
-            child: Container(
-              padding: const EdgeInsets.all(25),
-              decoration: BoxDecoration(
-                color: Colors.white.withAlpha(128),
-                borderRadius: BorderRadius.circular(16),
+          body: Stack(
+            fit: StackFit.expand,
+            children: [
+              Image.asset(
+                'assets/images/background.jpg',
+                fit: BoxFit.cover,
               ),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CustomTextField(
-                      label: "Ім'я",
-                      controller: _nameController,
-                      validator: Validators.validateName,
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.all(25),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withAlpha(128),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CustomTextField(
+                          label: "Ім'я",
+                          controller: nameController,
+                          validator: Validators.validateName,
+                        ),
+                        CustomTextField(
+                          label: 'Email',
+                          controller: emailController,
+                          validator: Validators.validateEmail,
+                        ),
+                        CustomTextField(
+                          label: 'Пароль',
+                          isPassword: true,
+                          controller: passwordController,
+                          validator: Validators.validatePassword,
+                        ),
+                        const SizedBox(height: 20),
+                        CustomButton(
+                          text: 'Оновити профіль',
+                          onPressed: updateUser,
+                        ),
+                      ],
                     ),
-                    CustomTextField(
-                      label: 'Email',
-                      controller: _emailController,
-                      validator: Validators.validateEmail,
-                    ),
-                    CustomTextField(
-                      label: 'Пароль',
-                      isPassword: true,
-                      controller: _passwordController,
-                      validator: Validators.validatePassword,
-                    ),
-                    const SizedBox(height: 20),
-                    CustomButton(
-                      text: 'Оновити профіль',
-                      onPressed: _updateUser,
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
