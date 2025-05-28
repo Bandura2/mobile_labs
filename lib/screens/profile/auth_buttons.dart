@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '/widgets/custom_button.dart';
+import 'package:lab_1/widgets/custom_button.dart';
 
 class AuthButtons extends StatelessWidget {
   final VoidCallback onReload;
@@ -8,10 +8,11 @@ class AuthButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Center(
+        child: Column(
       children: [
         const Text(
-          'Увійдіть/Зареєструйтесь',
+          'Увійдіть або Зареєструйтесь',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 20),
@@ -31,6 +32,6 @@ class AuthButtons extends StatelessWidget {
           text: 'Зареєструватися',
         ),
       ],
-    );
+    ));
   }
 }
