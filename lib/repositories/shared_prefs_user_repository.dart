@@ -21,7 +21,8 @@ class SharedPrefsUserRepository implements AbstractUserRepository {
     final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
 
     if (name != null && email != null && password != null) {
-      return User(name: name, email: email, password: password, isLoggedIn: isLoggedIn);
+      return User(
+          name: name, email: email, password: password, isLoggedIn: isLoggedIn);
     }
     return null;
   }

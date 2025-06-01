@@ -28,24 +28,24 @@ class NetworkService extends ChangeNotifier {
   void _setupConnectivityListener() {
     _subscription =
         _connectivity.onConnectivityChanged.listen((dynamic event) async {
-      try {
-        final newConnectionStatus = await _checkConnectionStatus();
+          try {
+            final newConnectionStatus = await _checkConnectionStatus();
 
-        if (_isConnected != newConnectionStatus) {
-          _isConnected = newConnectionStatus;
-          notifyListeners();
-        }
-      } catch (e) {
-        return;
-      }
-    });
+            if (_isConnected != newConnectionStatus) {
+              _isConnected = newConnectionStatus;
+              notifyListeners();
+            }
+          } catch (e) {
+            return;
+          }
+        });
   }
 
   Future<bool> _checkConnectionStatus() async {
     final result = await _connectivity.checkConnectivity();
 
     return result.any((r) =>
-        r == ConnectivityResult.wifi ||
+    r == ConnectivityResult.wifi ||
         r == ConnectivityResult.mobile ||
         r == ConnectivityResult.ethernet);
   }
