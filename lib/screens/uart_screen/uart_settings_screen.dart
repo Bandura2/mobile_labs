@@ -48,13 +48,14 @@ class UARTSettingsView extends StatelessWidget {
                   label: const Text('Сканувати QR-код'),
                   onPressed: () async {
                     final navigator = Navigator.of(context);
-
                     final Map<String, dynamic>? scannedData =
-                        await navigator.push(
+                    await navigator.push(
                       MaterialPageRoute(
                         builder: (context) => const QRScannerScreen(),
                       ),
                     );
+
+                    if (!context.mounted) return;
 
                     if (scannedData != null) {
                       cubit.updateCredentials(
@@ -105,6 +106,7 @@ class UARTSettingsView extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () async {
                     final response = await cubit.sendCredentials();
+                    if (!context.mounted) return;
                     showSnackBarMessage(
                       context,
                       response ?? 'Будь ласка, дочекайтеся підключення до МК',
@@ -116,6 +118,7 @@ class UARTSettingsView extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () async {
                     final response = await cubit.requestCurrentDeviceId();
+                    if (!context.mounted) return;
                     showSnackBarMessage(
                       context,
                       response ?? 'Будь ласка, дочекайтеся підключення до МК',
