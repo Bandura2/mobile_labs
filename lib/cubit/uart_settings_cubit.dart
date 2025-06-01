@@ -2,8 +2,30 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:lab_1/receivers_from_sensor/uart_comunication_controller.dart';
 
+enum ConnectionStatus {
+  notConnected,
+  connecting,
+  connected,
+  error,
+}
+
+extension ConnectionStatusExtension on ConnectionStatus {
+  String get label {
+    switch (this) {
+      case ConnectionStatus.notConnected:
+        return 'Не підключено';
+      case ConnectionStatus.connecting:
+        return 'Підключення...';
+      case ConnectionStatus.connected:
+        return 'Підключено';
+      case ConnectionStatus.error:
+        return 'Помилка підключення';
+    }
+  }
+}
+
 class UARTSettingsState extends Equatable {
-  final String connectionStatus;
+  final ConnectionStatus connectionStatus;
   final String username;
   final String password;
   final String deviceId;
@@ -16,7 +38,7 @@ class UARTSettingsState extends Equatable {
   });
 
   UARTSettingsState copyWith({
-    String? connectionStatus,
+    ConnectionStatus? connectionStatus,
     String? username,
     String? password,
     String? deviceId,
@@ -38,7 +60,7 @@ class UARTSettingsCubit extends Cubit<UARTSettingsState> {
 
   UARTSettingsCubit(this.uartController)
       : super(const UARTSettingsState(
-          connectionStatus: 'Не підключено',
+          connectionStatus: ConnectionStatus.notConnected,
           username: '',
           password: '',
           deviceId: '',
@@ -47,10 +69,12 @@ class UARTSettingsCubit extends Cubit<UARTSettingsState> {
   }
 
   Future<void> initializeUart() async {
-    emit(state.copyWith(connectionStatus: 'Підключення...'));
+    emit(state.copyWith(connectionStatus: ConnectionStatus.connecting));
     bool success = await uartController.initialize();
     emit(state.copyWith(
-        connectionStatus: success ? 'Підключено' : 'Помилка підключення'));
+      connectionStatus:
+          success ? ConnectionStatus.connected : ConnectionStatus.error,
+    ));
   }
 
   void updateCredentials({String? username, String? password}) {
@@ -65,7 +89,7 @@ class UARTSettingsCubit extends Cubit<UARTSettingsState> {
   }
 
   Future<String?> sendCredentials() async {
-    if (state.connectionStatus != 'Підключено') return null;
+    if (state.connectionStatus != ConnectionStatus.connected) return null;
 
     final response = await uartController.sendCredentials(
       username: state.username,
@@ -91,7 +115,7 @@ class UARTSettingsCubit extends Cubit<UARTSettingsState> {
   }
 
   Future<String?> requestCurrentDeviceId() async {
-    if (state.connectionStatus != 'Підключено') return null;
+    if (state.connectionStatus != ConnectionStatus.connected) return null;
 
     final response = await uartController.sendCredentials(
       username: state.username,

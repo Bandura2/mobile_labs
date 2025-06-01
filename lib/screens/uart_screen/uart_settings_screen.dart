@@ -6,6 +6,12 @@ import 'package:lab_1/cubit/uart_settings_cubit.dart';
 class UARTSettingsView extends StatelessWidget {
   const UARTSettingsView({super.key});
 
+  void showSnackBarMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<UARTSettingsCubit>();
@@ -28,9 +34,9 @@ class UARTSettingsView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'Статус підключення: ${state.connectionStatus}',
+                  'Статус підключення: ${state.connectionStatus.label}',
                   style: TextStyle(
-                    color: state.connectionStatus == 'Підключено'
+                    color: state.connectionStatus == ConnectionStatus.connected
                         ? Colors.green
                         : Colors.red,
                     fontWeight: FontWeight.bold,
@@ -42,7 +48,6 @@ class UARTSettingsView extends StatelessWidget {
                   label: const Text('Сканувати QR-код'),
                   onPressed: () async {
                     final navigator = Navigator.of(context);
-                    final messenger = ScaffoldMessenger.of(context);
 
                     final Map<String, dynamic>? scannedData =
                         await navigator.push(
@@ -56,18 +61,12 @@ class UARTSettingsView extends StatelessWidget {
                         username: scannedData['username']?.toString(),
                         password: scannedData['password']?.toString(),
                       );
-                      messenger.showSnackBar(
-                        const SnackBar(
-                          content: Text('Креденціали отримано з QR-коду'),
-                        ),
-                      );
+                      showSnackBarMessage(
+                          context, 'Креденціали отримано з QR-коду');
                     } else {
-                      messenger.showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Сканування QR-коду скасовано або дані не отримано/некоректний формат',
-                          ),
-                        ),
+                      showSnackBarMessage(
+                        context,
+                        'Сканування QR-коду скасовано або дані не отримано/некоректний формат',
                       );
                     }
                   },
@@ -105,15 +104,10 @@ class UARTSettingsView extends StatelessWidget {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () async {
-                    final messenger = ScaffoldMessenger.of(context);
                     final response = await cubit.sendCredentials();
-                    messenger.showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          response ??
-                              'Будь ласка, дочекайтеся підключення до МК',
-                        ),
-                      ),
+                    showSnackBarMessage(
+                      context,
+                      response ?? 'Будь ласка, дочекайтеся підключення до МК',
                     );
                   },
                   child: const Text('Ідентифікація / Перезапис'),
@@ -121,15 +115,10 @@ class UARTSettingsView extends StatelessWidget {
                 const SizedBox(height: 8),
                 ElevatedButton(
                   onPressed: () async {
-                    final messenger = ScaffoldMessenger.of(context);
                     final response = await cubit.requestCurrentDeviceId();
-                    messenger.showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          response ??
-                              'Будь ласка, дочекайтеся підключення до МК',
-                        ),
-                      ),
+                    showSnackBarMessage(
+                      context,
+                      response ?? 'Будь ласка, дочекайтеся підключення до МК',
                     );
                   },
                   child: const Text('Запитати поточний ідентифікатор з МК'),

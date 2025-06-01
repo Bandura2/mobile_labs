@@ -16,12 +16,18 @@ class ProfileCubit extends Cubit<ProfileState> {
 
     try {
       final isLoggedIn = await _userRepository.isUserLoggedIn();
-      if (isLoggedIn) {
-        final user = await _userRepository.getUser();
-        emit(ProfileState.loaded(user!));
-      } else {
+      if (!isLoggedIn) {
         emit(const ProfileState.loggedOut());
+        return;
       }
+
+      final user = await _userRepository.getUser();
+      if (user == null) {
+        emit(const ProfileState.loggedOut());
+        return;
+      }
+
+      emit(ProfileState.loaded(user));
     } catch (e) {
       emit(ProfileState.error(e.toString()));
     }

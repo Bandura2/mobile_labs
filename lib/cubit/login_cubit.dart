@@ -32,7 +32,7 @@ class LoginCubit extends Cubit<LoginState> {
 
     final savedUser = await userRepository.getUser();
     if (savedUser != null &&
-        email.trim() == savedUser.email &&
+        email.trim().toLowerCase() == savedUser.email.toLowerCase() &&
         password.trim() == savedUser.password) {
       await userRepository.setUserLoggedIn(true);
       emit(state.copyWith(isSuccess: true));
